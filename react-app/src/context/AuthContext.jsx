@@ -5,6 +5,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const { VITE_API_URL } = import.meta.env;
+    console.log("VITE_API_URL => ", VITE_API_URL);
 
     useEffect(() => {
         const token = localStorage.getItem("token");

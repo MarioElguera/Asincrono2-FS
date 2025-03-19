@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
+    const { VITE_API_URL } = import.meta.env;
     const [user, setUser] = useState({ username: "", email: "", password: "" });
     const navigate = useNavigate();
 
@@ -11,7 +12,7 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
+        const res = await fetch(`${VITE_API_URL}/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(user)
