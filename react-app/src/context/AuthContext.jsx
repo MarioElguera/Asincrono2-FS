@@ -5,21 +5,33 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const { VITE_API_URL } = import.meta.env;
-    console.log("VITE_API_URL => ", VITE_API_URL);
+
+    // console.log("VITE_API_URL => ", VITE_API_URL);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            fetch(`${VITE_API_URL}/user`, { headers: { Authorization: token } })
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error("No se pudo obtener el usuario");
-                    }
-                    return res.json();
-                })
-                .then(data => setUser(data))
-                .catch(() => setUser(null));
-        }
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) return;
+
+                const res = await fetch(`${VITE_API_URL}/user`, {
+                    headers: { Authorization: token },
+                });
+
+                if (!res.ok) {
+                    throw new Error("No se pudo obtener el usuario");
+                }
+
+                const data = await res.json();
+                setUser(data);
+
+            } catch (error) {
+                console.error("AuthContext | Error obteniendo usuario:", error);
+                setUser(null);
+            }
+        };
+
+        fetchUser();
     }, []);
 
     const login = async (email, password) => {
@@ -27,12 +39,14 @@ export const AuthProvider = ({ children }) => {
             const res = await fetch(`${VITE_API_URL}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
             });
 
             if (!res.ok) {
-                throw new Error("Error en las credenciales o en el servidor");
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Error en el login");
             }
+
             const data = await res.json();
             localStorage.setItem("token", data.token);
             setUser(data.user);
@@ -46,13 +60,34 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const register = async (username, email, password) => {
+        try {
+            const res = await fetch(`${VITE_API_URL}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Error en el registro");
+            }
+
+            return await res.json();
+
+        } catch (error) {
+            console.error("AuthContext | Error en el registro:", error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );
