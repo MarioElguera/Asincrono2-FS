@@ -4,7 +4,9 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 require('dotenv').config();
 
-const { MODE, MONGO_URI, PORT, BBDD } = require('./env');
+const { MODE, MONGO_URI, PORT } = require('./env');
+// console.log(MODE, "\n" + MONGO_URI, "\n" + PORT);
+
 const app = express();
 
 app.use(cors());
