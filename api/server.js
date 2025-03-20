@@ -26,4 +26,7 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ error: err.message || 'Error interno del servidor' });
 });
 
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));
+// Iniciar servidor (Vercel maneja el puerto automáticamente)
+module.exports = app;
+
+// app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));
